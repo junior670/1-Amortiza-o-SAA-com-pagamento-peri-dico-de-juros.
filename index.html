@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amortização (SAA) com pagamento periódico de juros. (SAA)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #1e3a8a;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: block;
+            color: #1e3a8a;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .result-table th,
+        .result-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .result-table th {
+            background-color: #1e3a8a;
+            color: white;
+        }
+
+        .result-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .result-table tr:hover {
+            background-color: #ddd;
+        }
+
+        .summary {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #1e3a8a;
+            color: white;
+            font-size: 18px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            button {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1> Sistema Americano de Amortização (SAA) periódico de juros</h1>
+
+    <div class="container">
+        <label for="principal">Valor Principal (PV): R$</label>
+        <input type="number" id="principal" placeholder="Digite o valor principal">
+
+        <label for="juros">Taxa de Juros (% a.m.):</label>
+        <input type="number" id="juros" placeholder="Digite a taxa de juros">
+
+        <label for="meses">Número de Meses:</label>
+        <input type="number" id="meses" placeholder="Digite o número de meses">
+
+        <button onclick="calcular()">Calcular</button>
+
+        <table class="result-table" id="resultTable">
+            <thead>
+                <tr>
+                    <th>Período</th>
+                    <th>Valor da Prestação</th>
+                    <th>Amortização (A)</th>
+                    <th>Juro da Parcela (J)</th>
+                    <th>Saldo Devedor (SD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Tabela gerada dinamicamente -->
+            </tbody>
+        </table>
+
+        <div class="summary" id="resumo">
+            <!-- Resumo exibido aqui -->
+        </div>
+    </div>
+
+    <script>
+        function calcular() {
+            // Obter valores dos inputs
+            var principal = parseFloat(document.getElementById('principal').value);
+            var taxa_juros = parseFloat(document.getElementById('juros').value) / 100;
+            var meses = parseInt(document.getElementById('meses').value);
+
+            if (isNaN(principal) || isNaN(taxa_juros) || isNaN(meses) || principal <= 0 || taxa_juros <= 0 || meses <= 0) {
+                alert("Por favor, insira valores válidos.");
+                return;
+            }
+
+            var saldo_devedor = principal;
+            var total_pago = 0;
+            var juros_totais = 0;
+
+            // Limpar tabela antes de adicionar novos dados
+            var tableBody = document.getElementById('resultTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = '';
+
+            // Adicionar a linha inicial
+            var row = tableBody.insertRow();
+            row.insertCell(0).textContent = "0";
+            row.insertCell(1).textContent = "-";
+            row.insertCell(2).textContent = "-";
+            row.insertCell(3).textContent = "-";
+            row.insertCell(4).textContent = `R$ ${principal.toFixed(2)}`;
+
+            // Calcular para cada mês
+            for (var mes = 1; mes <= meses; mes++) {
+                var juro_parcela = saldo_devedor * taxa_juros;
+                total_pago += juro_parcela + (mes === meses ? principal : 0);
+                juros_totais += juro_parcela;
+
+                // Adicionar os valores na tabela
+                var row = tableBody.insertRow();
+                row.insertCell(0).textContent = mes;
+                row.insertCell(1).textContent = `R$ ${juro_parcela.toFixed(2)}`;
+                row.insertCell(2).textContent = mes === meses ? `R$ ${principal.toFixed(2)}` : "R$ 0,00";
+                row.insertCell(3).textContent = `R$ ${juro_parcela.toFixed(2)}`;
+                row.insertCell(4).textContent = mes === meses ? "R$ 0,00" : `R$ ${principal.toFixed(2)}`;
+            }
+
+            // Mostrar o resumo
+            var resumo = document.getElementById('resumo');
+            resumo.textContent = `Total Pago: R$ ${total_pago.toFixed(2)} | Capital Devolvido: R$ ${principal.toFixed(2)} | Total de Juros: R$ ${juros_totais.toFixed(2)}`;
+        }
+    </script>
+
+</body>
+</html>
